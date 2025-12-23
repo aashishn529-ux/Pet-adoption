@@ -1,0 +1,43 @@
+.apply-page {
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.apply-box {
+  width: 420px;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.apply-box input,
+.apply-box textarea {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.apply-box textarea {
+  height: 100px;
+  resize: none;
+}
+
+.apply-box button {
+  width: 100%;
+  margin-top: 15px;
+  padding: 14px;
+  background: #2e7d32;
+  border: none;
+  color: white;
+  border-radius: 25px;
+  cursor: pointer;
+}
+
+.apply-box button:hover {
+  background: #1b5e20;
+}
