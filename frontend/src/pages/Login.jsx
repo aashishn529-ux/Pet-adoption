@@ -1,37 +1,40 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthContext from "../context/AuthContext";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 export default function Login() {
-  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // basic validation
     if (!email || !password) {
       setError("Please enter email and password");
       return;
     }
 
-    // 🔐 CHECK IF ACCOUNT EXISTS (mock storage)
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const userExists = users.find((u) => u.email === email);
+    try {
+      // 🔐 Firebase login
+      await signInWithEmailAndPassword(auth, email, password);
 
-    if (!userExists) {
-      setError("Account not found. Please create an account.");
-      return;
+      // ✅ success → go home
+      navigate("/");
+    } catch (err) {
+      if (
+        err.code === "auth/user-not-found" ||
+        err.code === "auth/invalid-credential"
+      ) {
+        setError("Invalid email or password");
+      } else {
+        setError(err.message);
+      }
     }
-
-    // ✅ LOGIN SUCCESS
-    login(email);
-    navigate("/");
   };
 
   return (

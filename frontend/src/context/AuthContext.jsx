@@ -1,32 +1,41 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useEffect, useState } from "react";
+import { auth } from "../firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 const AuthContext = createContext(null);
 
+const ADMIN_EMAIL = "aashishneupane.cs24@bmsce.ac.in";
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  /* 🔁 LOAD USER ON REFRESH */
   useEffect(() => {
-    const savedUser = JSON.parse(localStorage.getItem("loggedUser"));
-    if (savedUser) {
-      setUser(savedUser);
-    }
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          name: firebaseUser.displayName,
+          isAdmin: firebaseUser.email === ADMIN_EMAIL, // ✅ FIX
+        });
+      } else {
+        setUser(null);
+      }
+
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  /* ✅ LOGIN WITH USER OBJECT */
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem("loggedUser", JSON.stringify(userData));
-  };
-
-  /* 🚪 LOGOUT */
-  const logout = () => {
+  const logout = async () => {
+    await signOut(auth);
     setUser(null);
-    localStorage.removeItem("loggedUser");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );
